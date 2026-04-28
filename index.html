@@ -68,7 +68,6 @@
   .screen.active {
     display: flex;
     flex-direction: column;
-    animation: fadeIn 0.4s ease both;
   }
 
   @keyframes fadeIn {
@@ -231,7 +230,7 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: none;
   }
 
   .header-title {
@@ -249,7 +248,6 @@
     font-family: 'Cinzel Decorative', serif;
     font-size: 1.4rem;
     color: var(--gold);
-    filter: drop-shadow(0 0 10px rgba(212,160,23,0.5));
   }
 
   .score-display span:first-child { font-size: 0.7rem; color: var(--marble-dark); letter-spacing: 2px; font-family: 'Lato', sans-serif; }
@@ -654,10 +652,10 @@
     box-shadow: 0 8px 30px rgba(212,160,23,0.6);
   }
 
-  /* Shimmer effect on cards */
-  @keyframes shimmer {
-    0% { background-position: -500px 0; }
-    100% { background-position: 500px 0; }
+  .btn-start, .answer-btn, .next-btn, .btn-replay {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
   }
 
   /* Explosion particles */
@@ -1135,8 +1133,12 @@ function resetGame() {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => {
     s.classList.remove('active');
+    s.style.display = 'none';
   });
-  document.getElementById(id).classList.add('active');
+  const target = document.getElementById(id);
+  target.classList.add('active');
+  target.style.display = 'flex';
+  window.scrollTo(0, 0);
 }
 </script>
 </body>
