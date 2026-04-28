@@ -875,7 +875,7 @@ function shuffle(arr) {
 }
 
 let questions, currentQ, score, streak, bestStreak, correctCount, wrongCount;
-let timerInterval, timeLeft, answered;
+let timerInterval, timeLeft, answered, currentCorrect;
 const TIMER_MAX = 20;
 
 function startGame() {
@@ -919,13 +919,19 @@ function loadQuestion() {
     if (i === currentQ) dot.classList.add('current');
   }
 
+  // Shuffle answers, track where the correct one lands
+  const indexed = q.answers.map((ans, i) => ({ ans, i }));
+  shuffle(indexed);
+  const shuffledCorrect = indexed.findIndex(item => item.i === q.correct);
+  currentCorrect = shuffledCorrect;
+
   const grid = document.getElementById('answersGrid');
   grid.innerHTML = '';
-  q.answers.forEach((ans, i) => {
+  indexed.forEach(({ ans }, i) => {
     const btn = document.createElement('button');
     btn.className = 'answer-btn';
     btn.innerHTML = `<span class="answer-letter">${letters[i]}</span><span>${ans}</span>`;
-    btn.onclick = () => selectAnswer(i);
+    btn.onclick = () => selectAnswer(i, shuffledCorrect);
     grid.appendChild(btn);
   });
 
@@ -960,7 +966,7 @@ function updateTimerBar() {
   bar.className = 'timer-bar' + (pct < 25 ? ' danger' : pct < 50 ? ' warning' : '');
 }
 
-function selectAnswer(idx) {
+function selectAnswer(idx, shuffledCorrect) {
   if (answered) return;
   answered = true;
   clearInterval(timerInterval);
@@ -969,10 +975,10 @@ function selectAnswer(idx) {
   const btns = document.querySelectorAll('.answer-btn');
   btns.forEach(b => b.disabled = true);
 
-  const isCorrect = idx === q.correct;
+  const isCorrect = idx === shuffledCorrect;
   btns[idx].classList.add(isCorrect ? 'correct' : 'wrong');
   if (!isCorrect) {
-    btns[q.correct].classList.add('reveal');
+    btns[shuffledCorrect].classList.add('reveal');
   }
 
   const fb = document.getElementById('feedbackBanner');
@@ -1015,7 +1021,7 @@ function timeExpired() {
   const q = questions[currentQ];
   const btns = document.querySelectorAll('.answer-btn');
   btns.forEach(b => b.disabled = true);
-  btns[q.correct].classList.add('reveal');
+  btns[currentCorrect].classList.add('reveal');
   streak = 0;
   wrongCount++;
   updateStreak();
